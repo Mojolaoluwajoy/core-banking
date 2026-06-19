@@ -1,6 +1,7 @@
 
 package com.corebanking.clientservice.controller;
 
+import com.corebanking.clientservice.dto.ApiResponse;
 import com.corebanking.clientservice.dto.ClientResponse;
 import com.corebanking.clientservice.dto.CreateClientRequest;
 import com.corebanking.clientservice.service.ClientService;
@@ -20,34 +21,31 @@ public class ClientController {
 
     private final ClientService clientService;
 
-
     @PostMapping
-    public ResponseEntity<ClientResponse> createClient(
+    public ResponseEntity<ApiResponse<ClientResponse>> createClient(
             @Valid @RequestBody CreateClientRequest request) {
-        log.info("Request received to create client");
         ClientResponse response = clientService.createClient(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Client created successfully", response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientResponse> getClientById(@PathVariable Long id) {
-        log.info("Request received to fetch client with ID: {}", id);
-        return ResponseEntity.ok(clientService.getClientById(id));
+    public ResponseEntity<ApiResponse<ClientResponse>> getClientById(@PathVariable Long id) {
+        ClientResponse response = clientService.getClientById(id);
+        return ResponseEntity.ok(ApiResponse.success("Client retrieved successfully", response));
     }
-
 
     @GetMapping
-    public ResponseEntity<List<ClientResponse>> getAllClients() {
-        log.info("Request received to fetch all clients");
-        return ResponseEntity.ok(clientService.getAllClients());
+    public ResponseEntity<ApiResponse<List<ClientResponse>>> getAllClients() {
+        List<ClientResponse> response = clientService.getAllClients();
+        return ResponseEntity.ok(ApiResponse.success("Clients retrieved successfully", response));
     }
 
-
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponse> updateClient(
+    public ResponseEntity<ApiResponse<ClientResponse>> updateClient(
             @PathVariable Long id,
             @Valid @RequestBody CreateClientRequest request) {
-        log.info("Request received to update client with ID: {}", id);
-        return ResponseEntity.ok(clientService.updateClient(id, request));
+        ClientResponse response = clientService.updateClient(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Client updated successfully", response));
     }
 }
