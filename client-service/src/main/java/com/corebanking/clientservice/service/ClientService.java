@@ -4,6 +4,8 @@ package com.corebanking.clientservice.service;
 import com.corebanking.clientservice.dto.ClientResponse;
 import com.corebanking.clientservice.dto.CreateClientRequest;
 import com.corebanking.clientservice.entity.Client;
+import com.corebanking.clientservice.exception.ClientNotFoundException;
+import com.corebanking.clientservice.exception.DuplicateEmailException;
 import com.corebanking.clientservice.repository.ClientRepository;
 import com.corebanking.clientservice.util.ClientMapper;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +25,7 @@ public class ClientService {
         log.info("Creating client with email: {}", request.getEmail());
 
         if (clientRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Client with email " + request.getEmail() + " already exists");
+            throw new DuplicateEmailException("Client with email " + request.getEmail() + " already exists");
         }
 
         Client savedClient = clientRepository.save(ClientMapper.toEntity(request));
@@ -54,7 +56,7 @@ public class ClientService {
         log.info("Updating client with ID: {}", id);
 
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found with ID: " + id));
+                .orElseThrow(() -> new ClientNotFoundException("Client not found with ID: " + id));
 
         client.setFirstName(request.getFirstName());
         client.setLastName(request.getLastName());
