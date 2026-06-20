@@ -1,6 +1,13 @@
 package com.corebanking.clientservice;
 
 
+import com.corebanking.clientservice.dto.ClientResponse;
+import com.corebanking.clientservice.dto.CreateClientRequest;
+import com.corebanking.clientservice.entity.Client;
+import com.corebanking.clientservice.exception.ClientNotFoundException;
+import com.corebanking.clientservice.exception.DuplicateEmailException;
+import com.corebanking.clientservice.repository.ClientRepository;
+import com.corebanking.clientservice.service.ClientService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,6 +17,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.Optional;
+
+import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
+import static org.mockito.ArgumentMatchers.any;
+
+//import static jdk.internal.classfile.impl.verifier.VerifierImpl.verify;
+//import static jdk.jfr.internal.jfc.model.Constraint.any;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ClientServiceTest {
@@ -43,33 +63,35 @@ public class ClientServiceTest {
     }
         @Test
         void createClient_withValidRequest_shouldReturnClientResponse(){
-        when(clientRepository.existByEmail(validRequest.getEmail())).thenReturn(false);
-        while (clientRepository.save(any(Client.class))).thenReturn(savedClient);
+        when(clientRepository.existsByEmail(validRequest.getEmail())).thenReturn(false);
+        when(clientRepository.save(any(Client.class))).thenReturn(savedClient);
 
-        ClientResponse response=clientService.creatrClient(validRequest);
+        ClientResponse response=clientService.createClient(validRequest);
 
-        assertNotNulll(response);
+        assertNotNull(response);
         assertEquals("Jane",response.getFirstName());
         assertEquals("Doe",response.getLastName());
         assertEquals("janedoe@gmail.com",response.getEmail());
         verify(clientRepository,times(1)).save(any(Client.class));
         }
 
-@Test
-    void creatrClient_withDuplicateEmail_shouldThrowException(){
+    @Test
+    void createClient_withDuplicateEmail_shouldThrowException() {
         when(clientRepository.existsByEmail(validRequest.getEmail())).thenReturn(true);
 
-        assertThrows(RuntimeException.class,() -> {
+        assertThrows(DuplicateEmailException.class, () -> {
             clientService.createClient(validRequest);
         });
-}
 
-@Test
-    void getClientById_withValidId_shouldReturnClientResponse(){
-        when(clientRepository.findById(99L)).thenReturn(Optional.of(savedClient));
+        verify(clientRepository, never()).save(any(Client.class));
+    }
 
-        assertThrows(RuntimeException.class,()-> {
+     @Test
+    void getClientById_withInvalidId_shouldThrowException() {
+        when(clientRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(ClientNotFoundException.class, () -> {
             clientService.getClientById(99L);
         });
-}
+    }
 }
