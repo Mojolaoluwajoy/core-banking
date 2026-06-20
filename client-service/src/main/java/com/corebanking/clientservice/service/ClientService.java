@@ -38,8 +38,7 @@ public class ClientService {
         log.info("Fetching client with ID: {}", id);
 
         Client client = clientRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Client not found with ID: " + id));
-
+                .orElseThrow(() -> new ClientNotFoundException("Client not found with ID: " + id));
         return ClientMapper.toResponse(client);
     }
 
