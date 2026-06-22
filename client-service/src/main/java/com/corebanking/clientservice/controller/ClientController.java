@@ -5,6 +5,7 @@ import com.corebanking.clientservice.dto.ApiResponse;
 import com.corebanking.clientservice.dto.ClientResponse;
 import com.corebanking.clientservice.dto.CreateClientRequest;
 import com.corebanking.clientservice.service.ClientService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/clients")
+@Tag(name = "Clients", description = "Endpoints for managing bank clients")
 @RequiredArgsConstructor
 public class ClientController {
 
