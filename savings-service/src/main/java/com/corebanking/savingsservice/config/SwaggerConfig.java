@@ -14,7 +14,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Savings Service API")
-                        .description("Core Banking - Savings Management Service")
+                        .description("Core Banking - Savings Management Services")
                         .version("1.0"));
     }
 }
