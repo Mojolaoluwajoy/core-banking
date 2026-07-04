@@ -1,7 +1,6 @@
 
 package com.corebanking.savingsservice.dto;
 
-import com.corebanking.savingsservice.entity.SavingsAccountStatus;
 import com.corebanking.savingsservice.enums.SavingsAccountStatus;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +17,6 @@ public class SavingsAccountResponse {
     private String accountNumber;
     private BigDecimal balance;
     private BigDecimal availableBalance;
-    private com.corebanking.savingsservice.enums.SavingsAccountStatus status;
+    private SavingsAccountStatus status;
     private LocalDateTime createdAt;
 }
