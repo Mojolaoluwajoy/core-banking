@@ -5,7 +5,7 @@ import com.corebanking.savingsservice.dto.SavingsAccountResponse;
 import com.corebanking.savingsservice.dto.TransactionRequest;
 import com.corebanking.savingsservice.dto.TransactionResponse;
 import com.corebanking.savingsservice.entity.SavingsAccount;
-import com.corebanking.savingsservice.entity.SavingsAccountStatus;
+import com.corebanking.savingsservice.enums.SavingsAccountStatus;
 import com.corebanking.savingsservice.entity.SavingsProduct;
 import com.corebanking.savingsservice.exception.AccountNotFoundException;
 import com.corebanking.savingsservice.exception.InsufficientBalanceException;
