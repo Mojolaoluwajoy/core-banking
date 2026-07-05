@@ -70,7 +70,10 @@ public class SavingsAccountService {
         SavingsAccount savedAccount = savingsAccountRepository.save(account);
         log.info("Savings account opened successfully: {}", savedAccount.getAccountNumber());
 
+
         return SavingsAccountMapper.toResponse(savedAccount);
+
+
     }
 
 
@@ -90,6 +93,12 @@ public class SavingsAccountService {
         account.setBalance(newBalance);
         account.setAvailableBalance(newBalance);
         savingsAccountRepository.save(account);
+
+
+        // TODO: Post to ledger-service via REST call
+        // DEPOSIT → DEBIT: Cash Account, CREDIT: Savings Control Account
+       // Will be wired when ledger-service is built
+
 
         log.info("Deposit successful. New balance: {}", newBalance);
 
@@ -128,6 +137,10 @@ public class SavingsAccountService {
         account.setBalance(balanceAfterWithdrawal);
         account.setAvailableBalance(balanceAfterWithdrawal);
         savingsAccountRepository.save(account);
+
+        // TODO: Post to ledger-service via REST call
+        // WITHDRAWAL → DEBIT: Savings Control Account, CREDIT: Cash Account
+        // Will be wired when ledger-service is built
 
         log.info("Withdrawal successful. New balance: {}", balanceAfterWithdrawal);
 
