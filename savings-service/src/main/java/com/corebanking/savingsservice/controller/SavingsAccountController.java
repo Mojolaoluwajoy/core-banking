@@ -86,4 +86,17 @@ public class SavingsAccountController {
         TransactionResponse response = savingsAccountService.withdraw(accountId, request);
         return ResponseEntity.ok(ApiResponse.success("Withdrawal successful", response));
     }
+
+    @Operation(
+            summary = "Get transaction history for a savings account",
+            description = "Returns full transaction history ordered by most recent first. " +
+                    "Same as the transaction history screen in internet banking."
+    )
+    @GetMapping("/{accountId}/transactions")
+    public ResponseEntity<ApiResponse<List<SavingsTransaction>>> getTransactionHistory(
+            @PathVariable Long accountId) {
+        log.info("Request received to fetch transaction history for account ID: {}", accountId);
+        List<SavingsTransaction> transactions = savingsAccountService.getTransactionHistory(accountId);
+        return ResponseEntity.ok(ApiResponse.success("Transaction history retrieved successfully", transactions));
+    }
 }
