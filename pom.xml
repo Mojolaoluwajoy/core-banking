@@ -16,5 +16,7 @@
     <modules>
         <module>client-service</module>
         <module>savings-service</module>
+        <module>fixed-deposit-service</module>
+
     </modules>
 </project>
