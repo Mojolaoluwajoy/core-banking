@@ -4,7 +4,7 @@ package com.corebanking.fixeddepositservice;
 import com.corebanking.fixeddepositservice.dto.CreateFixedDepositRequest;
 import com.corebanking.fixeddepositservice.dto.FixedDepositResponse;
 import com.corebanking.fixeddepositservice.entity.FixedDeposit;
-import com.corebanking.fixeddepositservice.entity.FixedDepositStatus;
+import com.corebanking.fixeddepositservice.enums.FixedDepositStatus;
 import com.corebanking.fixeddepositservice.exception.FixedDepositNotFoundException;
 import com.corebanking.fixeddepositservice.exception.PrematureWithdrawalException;
 import com.corebanking.fixeddepositservice.repository.FixedDepositRepository;
