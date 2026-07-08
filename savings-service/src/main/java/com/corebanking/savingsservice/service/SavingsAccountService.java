@@ -1,28 +1,13 @@
-/*
- * SavingsAccountService
- *
- * Business logic for savings account management.
- * This is the most important class in savings-service —
- * it handles the full lifecycle of a savings account:
- * opening, depositing, withdrawing and balance checks.
- *
- * Key business rules enforced here:
- * 1. Product must exist before opening an account
- * 2. Initial deposit must meet minimum opening balance
- * 3. Withdrawal cannot breach minimum balance if enforced
- * 4. Account must be ACTIVE to transact
- *
- * This is the logic you built from scratch in your
- * internet banking project — balance updates, ledger posting.
- * Here it's structured around core banking concepts.
- */
 package com.corebanking.savingsservice.service;
 
-import com.corebanking.savingsservice.dto.*;
+import com.corebanking.savingsservice.dto.OpenSavingsAccountRequest;
+import com.corebanking.savingsservice.dto.SavingsAccountResponse;
+import com.corebanking.savingsservice.dto.TransactionRequest;
+import com.corebanking.savingsservice.dto.TransactionResponse;
 import com.corebanking.savingsservice.entity.SavingsAccount;
-import com.corebanking.savingsservice.entity.SavingsTransaction;
 import com.corebanking.savingsservice.enums.SavingsAccountStatus;
 import com.corebanking.savingsservice.entity.SavingsProduct;
+import com.corebanking.savingsservice.entity.SavingsTransaction;
 import com.corebanking.savingsservice.enums.TransactionType;
 import com.corebanking.savingsservice.exception.AccountNotFoundException;
 import com.corebanking.savingsservice.exception.InsufficientBalanceException;
@@ -46,10 +31,10 @@ import java.util.stream.Collectors;
 public class SavingsAccountService {
 
     private final SavingsAccountRepository savingsAccountRepository;
-    private final SavingsTransactionRepository savingsTransactionRepository;
     private final SavingsProductRepository savingsProductRepository;
+    private final SavingsTransactionRepository savingsTransactionRepository;
 
-     @Transactional
+    @Transactional
     public SavingsAccountResponse openAccount(OpenSavingsAccountRequest request) {
         log.info("Opening savings account for client ID: {}", request.getClientId());
 
@@ -74,12 +59,8 @@ public class SavingsAccountService {
         SavingsAccount savedAccount = savingsAccountRepository.save(account);
         log.info("Savings account opened successfully: {}", savedAccount.getAccountNumber());
 
-
         return SavingsAccountMapper.toResponse(savedAccount);
-
-
     }
-
 
     @Transactional
     public TransactionResponse deposit(Long accountId, TransactionRequest request) {
@@ -98,10 +79,7 @@ public class SavingsAccountService {
         account.setAvailableBalance(newBalance);
         savingsAccountRepository.save(account);
 
-
-        savingsAccountRepository.save(account);
-
-             SavingsTransaction transaction = new SavingsTransaction();
+        SavingsTransaction transaction = new SavingsTransaction();
         transaction.setAccount(account);
         transaction.setTransactionType(TransactionType.DEPOSIT);
         transaction.setAmount(request.getAmount());
@@ -109,12 +87,20 @@ public class SavingsAccountService {
         transaction.setBalanceAfter(newBalance);
         savingsTransactionRepository.save(transaction);
 
-// TODO: Post to ledger-service via REST call
-// DEPOSIT → DEBIT: Cash Account, CREDIT: Savings Control Account
+        // TODO: Post to ledger-service via REST call
+        // DEPOSIT → DEBIT: Cash Account, CREDIT: Savings Control Account
 
         log.info("Deposit successful. New balance: {}", newBalance);
-     }
 
+        return TransactionResponse.builder()
+                .accountId(accountId)
+                .transactionType("DEPOSIT")
+                .amount(request.getAmount())
+                .balanceBefore(balanceBefore)
+                .newBalance(newBalance)
+                .transactionDate(LocalDateTime.now())
+                .build();
+    }
 
     @Transactional
     public TransactionResponse withdraw(Long accountId, TransactionRequest request) {
@@ -149,13 +135,22 @@ public class SavingsAccountService {
         transaction.setBalanceAfter(balanceAfterWithdrawal);
         savingsTransactionRepository.save(transaction);
 
-// TODO: Post to ledger-service via REST call
-// WITHDRAWAL → DEBIT: Savings Control Account, CREDIT: Cash Account
+        // TODO: Post to ledger-service via REST call
+        // WITHDRAWAL → DEBIT: Savings Control Account, CREDIT: Cash Account
 
         log.info("Withdrawal successful. New balance: {}", balanceAfterWithdrawal);
-     }
 
-       public List<SavingsAccountResponse> getAccountsByClientId(Long clientId) {
+        return TransactionResponse.builder()
+                .accountId(accountId)
+                .transactionType("WITHDRAWAL")
+                .amount(request.getAmount())
+                .balanceBefore(balanceBefore)
+                .newBalance(balanceAfterWithdrawal)
+                .transactionDate(LocalDateTime.now())
+                .build();
+    }
+
+    public List<SavingsAccountResponse> getAccountsByClientId(Long clientId) {
         log.info("Fetching savings accounts for client ID: {}", clientId);
 
         return savingsAccountRepository.findByClientId(clientId)
@@ -164,7 +159,7 @@ public class SavingsAccountService {
                 .collect(Collectors.toList());
     }
 
-      public SavingsAccountResponse getAccountById(Long accountId) {
+    public SavingsAccountResponse getAccountById(Long accountId) {
         log.info("Fetching savings account with ID: {}", accountId);
 
         SavingsAccount account = savingsAccountRepository.findById(accountId)
@@ -174,18 +169,6 @@ public class SavingsAccountService {
         return SavingsAccountMapper.toResponse(account);
     }
 
-      private void validateAccountIsActive(SavingsAccount account) {
-        if (account.getStatus() != SavingsAccountStatus.ACTIVE) {
-            throw new IllegalStateException(
-                    "Account " + account.getAccountNumber() +
-                            " is not active. Current status: " + account.getStatus());
-        }
-    }
-
-     private String generateAccountNumber() {
-        return "SAV" + System.currentTimeMillis();
-    }
-
     public List<SavingsTransaction> getTransactionHistory(Long accountId) {
         log.info("Fetching transaction history for account ID: {}", accountId);
 
@@ -193,6 +176,19 @@ public class SavingsAccountService {
                 .orElseThrow(() -> new AccountNotFoundException(
                         "Savings account not found with ID: " + accountId));
 
-        return savingsTransactionRepository.findByAccountIdOrderByTransactionDateDesc(accountId);
+        return savingsTransactionRepository
+                .findByAccountIdOrderByTransactionDateDesc(accountId);
+    }
+
+    private void validateAccountIsActive(SavingsAccount account) {
+        if (account.getStatus() != SavingsAccountStatus.ACTIVE) {
+            throw new IllegalStateException(
+                    "Account " + account.getAccountNumber() +
+                            " is not active. Current status: " + account.getStatus());
+        }
+    }
+
+    private String generateAccountNumber() {
+        return "SAV" + System.currentTimeMillis();
     }
 }
