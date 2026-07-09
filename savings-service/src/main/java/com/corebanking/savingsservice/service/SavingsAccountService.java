@@ -15,6 +15,7 @@ import com.corebanking.savingsservice.exception.ProductNotFoundException;
 import com.corebanking.savingsservice.repository.SavingsAccountRepository;
 import com.corebanking.savingsservice.repository.SavingsProductRepository;
 import com.corebanking.savingsservice.repository.SavingsTransactionRepository;
+import com.corebanking.savingsservice.util.LedgerClient;
 import com.corebanking.savingsservice.util.SavingsAccountMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ public class SavingsAccountService {
     private final SavingsAccountRepository savingsAccountRepository;
     private final SavingsProductRepository savingsProductRepository;
     private final SavingsTransactionRepository savingsTransactionRepository;
+    private final LedgerClient ledgerClient;
 
     @Transactional
     public SavingsAccountResponse openAccount(OpenSavingsAccountRequest request) {
@@ -87,9 +89,8 @@ public class SavingsAccountService {
         transaction.setBalanceAfter(newBalance);
         savingsTransactionRepository.save(transaction);
 
-        // TODO: Post to ledger-service via REST call
-        // DEPOSIT → DEBIT: Cash Account, CREDIT: Savings Control Account
 
+        ledgerClient.postDepositEntry(request.getAmount(), savedAccount.getAccountNumber() + "-" + System.currentTimeMillis());
         log.info("Deposit successful. New balance: {}", newBalance);
 
         return TransactionResponse.builder()
@@ -135,9 +136,8 @@ public class SavingsAccountService {
         transaction.setBalanceAfter(balanceAfterWithdrawal);
         savingsTransactionRepository.save(transaction);
 
-        // TODO: Post to ledger-service via REST call
-        // WITHDRAWAL → DEBIT: Savings Control Account, CREDIT: Cash Account
 
+        ledgerClient.postWithdrawalEntry(request.getAmount(), account.getAccountNumber() + "-" + System.currentTimeMillis());
         log.info("Withdrawal successful. New balance: {}", balanceAfterWithdrawal);
 
         return TransactionResponse.builder()
