@@ -18,5 +18,6 @@
         <module>savings-service</module>
         <module>fixed-deposit-service</module>
         <module>ledger-service</module>
+        <module>api-gateway</module>
     </modules>
 </project>

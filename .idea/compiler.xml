@@ -10,6 +10,7 @@
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.46/lombok-1.18.46.jar" />
         </processorPath>
+        <module name="api-gateway" />
         <module name="savings-service" />
         <module name="fixed-deposit-service" />
         <module name="client-service" />
@@ -19,6 +20,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="api-gateway" options="-parameters" />
       <module name="client-service" options="-parameters" />
       <module name="fixed-deposit-service" options="-parameters" />
       <module name="ledger-service" options="-parameters" />
