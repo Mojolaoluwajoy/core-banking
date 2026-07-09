@@ -2,6 +2,7 @@
 package com.corebanking.savingsservice.controller;
 
 import com.corebanking.savingsservice.dto.*;
+import com.corebanking.savingsservice.entity.SavingsTransaction;
 import com.corebanking.savingsservice.service.SavingsAccountService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
