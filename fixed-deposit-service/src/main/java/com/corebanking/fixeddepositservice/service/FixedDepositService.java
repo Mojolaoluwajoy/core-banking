@@ -9,6 +9,7 @@ import com.corebanking.fixeddepositservice.exception.FixedDepositNotFoundExcepti
 import com.corebanking.fixeddepositservice.exception.PrematureWithdrawalException;
 import com.corebanking.fixeddepositservice.repository.FixedDepositRepository;
 import com.corebanking.fixeddepositservice.util.FixedDepositMapper;
+import com.corebanking.fixeddepositservice.util.LedgerClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class FixedDepositService {
 
     private final FixedDepositRepository fixedDepositRepository;
+    private final LedgerClient ledgerClient;
 
 
     @Transactional
@@ -49,11 +51,14 @@ public class FixedDepositService {
         deposit.setStatus(FixedDepositStatus.ACTIVE);
 
         FixedDeposit savedDeposit = fixedDepositRepository.save(deposit);
-        log.info("Fixed deposit created with ID: {} maturing on: {}",
-                savedDeposit.getId(), maturityDate);
+        log.info("Fixed deposit created with ID: {} maturing on: {}", savedDeposit.getId(), maturityDate);
 
-        return FixedDepositMapper.toResponse(savedDeposit);
-    }
+
+        ledgerClient.postFixedDepositCreationEntry(
+                request.getPrincipalAmount(),
+                "FD-" + savedDeposit.getId() + "-" + System.currentTimeMillis());
+
+        return FixedDepositMapper.toResponse(savedDeposit);    }
 
 
     @Transactional
@@ -72,10 +77,14 @@ public class FixedDepositService {
 
         deposit.setStatus(FixedDepositStatus.MATURED);
         FixedDeposit maturedDeposit = fixedDepositRepository.save(deposit);
-
         log.info("Fixed deposit {} matured successfully", depositId);
-        return FixedDepositMapper.toResponse(maturedDeposit);
-    }
+
+
+        ledgerClient.postFixedDepositMaturityEntry(
+                maturedDeposit.getMaturityAmount(),
+                "FD-MAT-" + depositId + "-" + System.currentTimeMillis());
+
+        return FixedDepositMapper.toResponse(maturedDeposit);  }
 
 
     public FixedDepositResponse getDepositById(Long depositId) {
