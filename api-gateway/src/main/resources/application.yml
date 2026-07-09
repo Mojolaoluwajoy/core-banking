@@ -13,12 +13,12 @@ spring:
             - Path=/api/v1/clients/**
 
         - id: savings-products
-          uri: http://localhost:8082
+          uri: http://localhost:8085
           predicates:
             - Path=/api/v1/savings-products/**
 
         - id: savings-accounts
-          uri: http://localhost:8082
+          uri: http://localhost:8085
           predicates:
             - Path=/api/v1/savings-accounts/**
 
