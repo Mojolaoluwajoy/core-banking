@@ -79,7 +79,7 @@ public class SavingsAccountService {
 
         account.setBalance(newBalance);
         account.setAvailableBalance(newBalance);
-        savingsAccountRepository.save(account);
+        SavingsAccount savedAccount =savingsAccountRepository.save(account);
 
         SavingsTransaction transaction = new SavingsTransaction();
         transaction.setAccount(account);
