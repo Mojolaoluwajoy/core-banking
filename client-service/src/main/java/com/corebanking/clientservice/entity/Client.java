@@ -18,6 +18,9 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private Long fineractClientId;
+
       @Column(nullable = false)
     private String firstName;
 
