@@ -31,6 +31,7 @@ public class ClientMapper {
                 .dateOfBirth(client.getDateOfBirth())
                 .status(client.getStatus())
                 .createdAt(client.getCreatedAt())
+                .fineractClientId(client.getFineractClientId())
                 .build();
     }
 

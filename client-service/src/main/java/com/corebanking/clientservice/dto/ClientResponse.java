@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 public class ClientResponse {
 
      private Long id;
+    @Builder.Default
+    private Long fineractClientId = null;
     private String firstName;
     private String lastName;
     private String email;
