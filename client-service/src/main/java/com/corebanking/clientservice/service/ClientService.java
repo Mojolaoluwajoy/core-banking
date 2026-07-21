@@ -1,4 +1,4 @@
-
+package com.corebanking.clientservice.service;
 import com.corebanking.clientservice.dto.ClientResponse;
 import com.corebanking.clientservice.dto.CreateClientRequest;
 import com.corebanking.clientservice.dto.FineractClientResponse;
