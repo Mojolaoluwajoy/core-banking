@@ -50,4 +50,6 @@ public class ClientController {
         ClientResponse response = clientService.updateClient(id, request);
         return ResponseEntity.ok(ApiResponse.success("Client updated successfully", response));
     }
+
+
 }

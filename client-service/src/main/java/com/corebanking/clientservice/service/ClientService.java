@@ -75,6 +75,7 @@ public class ClientService {
         return ClientMapper.toResponse(savedClient);
     }
 
+
     public ClientResponse getClientById(Long id) {
         log.info("Fetching client with ID: {}", id);
         Client client = clientRepository.findById(id)
