@@ -11,7 +11,7 @@ import lombok.Data;
 
 @Data
 public class FineractClientResponse {
-    private Long clientId;
-    private Long officeId;
-    private Long resourceId;
+  private Long clientId;
+  private Long officeId;
+  private Long resourceId;
 }

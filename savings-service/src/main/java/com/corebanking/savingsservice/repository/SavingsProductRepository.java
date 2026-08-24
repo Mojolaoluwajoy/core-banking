@@ -1,4 +1,3 @@
-
 package com.corebanking.savingsservice.repository;
 
 import com.corebanking.savingsservice.entity.SavingsProduct;
@@ -8,6 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SavingsProductRepository extends JpaRepository<SavingsProduct, Long> {
 
-
-    boolean existsByShortName(String shortName);
+  boolean existsByShortName(String shortName);
 }

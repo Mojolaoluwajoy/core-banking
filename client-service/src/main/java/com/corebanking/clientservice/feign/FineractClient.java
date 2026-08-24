@@ -1,4 +1,3 @@
-
 package com.corebanking.clientservice.feign;
 
 import com.corebanking.clientservice.dto.FineractClientResponse;
@@ -9,14 +8,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "fineract-client-service",
-        url = "${fineract.base-url}")
+@FeignClient(name = "fineract-client-service", url = "${fineract.base-url}")
 public interface FineractClient {
 
-    @PostMapping("/clients")
-    FineractClientResponse createClient(
-            @RequestBody FineractCreateClientRequest request);
+  @PostMapping("/clients")
+  FineractClientResponse createClient(@RequestBody FineractCreateClientRequest request);
 
-    @GetMapping("/clients/{clientId}")
-    Object getClientById(@PathVariable("clientId") Long clientId);
+  @GetMapping("/clients/{clientId}")
+  Object getClientById(@PathVariable("clientId") Long clientId);
 }

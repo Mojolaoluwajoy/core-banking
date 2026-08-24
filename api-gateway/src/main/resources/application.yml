@@ -34,11 +34,6 @@ spring:
             predicates:
               - Path=/api/v1/ledger/**
 
-          - id: fineract-integration
-            uri: http://localhost:8085
-            predicates:
-              - Path=/api/v1/fineract/**
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
-    org.springframework.web.servlet: DEBUG

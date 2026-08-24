@@ -2,11 +2,11 @@ package com.corebanking.ledgerservice.entity;
 
 import com.corebanking.ledgerservice.enums.TransactionEntryType;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
@@ -15,29 +15,29 @@ import java.time.LocalDateTime;
 @Table(name = "ledger_entries")
 public class LedgerEntry {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private String transactionReference;
+  private String transactionReference;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionEntryType transactionType;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private TransactionEntryType transactionType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "debit_account_id", nullable = false)
-    private GlAccount debitAccount;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "debit_account_id", nullable = false)
+  private GlAccount debitAccount;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "credit_account_id", nullable = false)
-    private GlAccount creditAccount;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "credit_account_id", nullable = false)
+  private GlAccount creditAccount;
 
-    @Column(nullable = false)
-    private BigDecimal amount;
+  @Column(nullable = false)
+  private BigDecimal amount;
 
-    private String description;
+  private String description;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime entryDate = LocalDateTime.now();
+  @Column(nullable = false, updatable = false)
+  private LocalDateTime entryDate = LocalDateTime.now();
 }

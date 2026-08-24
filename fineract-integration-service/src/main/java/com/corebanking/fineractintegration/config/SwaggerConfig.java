@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI fineractIntegrationOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Fineract Integration Service API")
-                        .description("Core Banking - Fineract Integration Layer")
-                        .version("1.0"));
-    }
+  @Bean
+  public OpenAPI fineractIntegrationOpenAPI() {
+    return new OpenAPI()
+        .info(
+            new Info()
+                .title("Fineract Integration Service API")
+                .description("Core Banking - Fineract Integration Layer")
+                .version("1.0"));
+  }
 }

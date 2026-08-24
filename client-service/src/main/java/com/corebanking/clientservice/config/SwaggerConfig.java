@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SwaggerConfig {
 
-    @Bean
-    public OpenAPI clientServiceOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Client Service API")
-                        .description("Core Banking - Client Management Service")
-                        .version("1.0"));
-    }
+  @Bean
+  public OpenAPI clientServiceOpenAPI() {
+    return new OpenAPI()
+        .info(
+            new Info()
+                .title("Client Service API")
+                .description("Core Banking - Client Management Service")
+                .version("1.0"));
+  }
 }

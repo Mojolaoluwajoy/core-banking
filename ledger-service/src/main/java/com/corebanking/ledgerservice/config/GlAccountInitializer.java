@@ -1,4 +1,3 @@
-
 package com.corebanking.ledgerservice.config;
 
 import com.corebanking.ledgerservice.entity.GlAccount;
@@ -14,31 +13,34 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class GlAccountInitializer implements CommandLineRunner {
 
-    private final GlAccountRepository glAccountRepository;
+  private final GlAccountRepository glAccountRepository;
 
-    @Override
-    public void run(String... args) {
-        if (glAccountRepository.count() == 0) {
-            log.info("Seeding Chart of Accounts...");
+  @Override
+  public void run(String... args) {
+    if (glAccountRepository.count() == 0) {
+      log.info("Seeding Chart of Accounts...");
 
-            createAccount("1001", "Cash", GlAccountType.ASSET, "Cash and cash equivalents");
-            createAccount("1002", "Fixed Deposit Asset", GlAccountType.ASSET, "Fixed deposit placements");
-            createAccount("2001", "Savings Control", GlAccountType.LIABILITY, "Customer savings balances");
-            createAccount("2002", "Fixed Deposit Liability", GlAccountType.LIABILITY, "Fixed deposit obligations");
-            createAccount("4001", "Interest Income", GlAccountType.INCOME, "Interest earned on deposits");
-            createAccount("5001", "Interest Expense", GlAccountType.EXPENSE, "Interest paid to customers");
+      createAccount("1001", "Cash", GlAccountType.ASSET, "Cash and cash equivalents");
+      createAccount("1002", "Fixed Deposit Asset", GlAccountType.ASSET, "Fixed deposit placements");
+      createAccount(
+          "2001", "Savings Control", GlAccountType.LIABILITY, "Customer savings balances");
+      createAccount(
+          "2002", "Fixed Deposit Liability", GlAccountType.LIABILITY, "Fixed deposit obligations");
+      createAccount("4001", "Interest Income", GlAccountType.INCOME, "Interest earned on deposits");
+      createAccount(
+          "5001", "Interest Expense", GlAccountType.EXPENSE, "Interest paid to customers");
 
-            log.info("Chart of Accounts seeded successfully");
-        }
+      log.info("Chart of Accounts seeded successfully");
     }
+  }
 
-    private void createAccount(String code, String name, GlAccountType type, String description) {
-        GlAccount account = new GlAccount();
-        account.setAccountCode(code);
-        account.setAccountName(name);
-        account.setAccountType(type);
-        account.setDescription(description);
-        glAccountRepository.save(account);
-        log.info("Created GL Account: {} - {}", code, name);
-    }
+  private void createAccount(String code, String name, GlAccountType type, String description) {
+    GlAccount account = new GlAccount();
+    account.setAccountCode(code);
+    account.setAccountName(name);
+    account.setAccountType(type);
+    account.setDescription(description);
+    glAccountRepository.save(account);
+    log.info("Created GL Account: {} - {}", code, name);
+  }
 }

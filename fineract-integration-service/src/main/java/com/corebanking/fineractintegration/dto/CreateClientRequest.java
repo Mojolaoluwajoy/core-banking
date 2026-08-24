@@ -1,4 +1,3 @@
-
 package com.corebanking.fineractintegration.dto;
 
 import jakarta.validation.constraints.Email;
@@ -8,16 +7,16 @@ import lombok.Data;
 @Data
 public class CreateClientRequest {
 
-    @NotBlank(message = "First name is required")
-    private String firstName;
+  @NotBlank(message = "First name is required")
+  private String firstName;
 
-    @NotBlank(message = "Last name is required")
-    private String lastName;
+  @NotBlank(message = "Last name is required")
+  private String lastName;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
+  @NotBlank(message = "Email is required")
+  @Email(message = "Invalid email format")
+  private String email;
 
-    private String phoneNumber;
-    private String dateOfBirth;
+  private String phoneNumber;
+  private String dateOfBirth;
 }

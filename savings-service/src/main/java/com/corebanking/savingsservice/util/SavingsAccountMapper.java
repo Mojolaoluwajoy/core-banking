@@ -15,19 +15,18 @@ import com.corebanking.savingsservice.entity.SavingsAccount;
 
 public class SavingsAccountMapper {
 
+  public static SavingsAccountResponse toResponse(SavingsAccount account) {
+    return SavingsAccountResponse.builder()
+        .id(account.getId())
+        .clientId(account.getClientId())
+        .productName(account.getProduct().getName())
+        .accountNumber(account.getAccountNumber())
+        .balance(account.getBalance())
+        .availableBalance(account.getAvailableBalance())
+        .status(account.getStatus())
+        .createdAt(account.getCreatedAt())
+        .build();
+  }
 
-    public static SavingsAccountResponse toResponse(SavingsAccount account) {
-        return SavingsAccountResponse.builder()
-                .id(account.getId())
-                .clientId(account.getClientId())
-                .productName(account.getProduct().getName())
-                .accountNumber(account.getAccountNumber())
-                .balance(account.getBalance())
-                .availableBalance(account.getAvailableBalance())
-                .status(account.getStatus())
-                .createdAt(account.getCreatedAt())
-                .build();
-    }
-
-    private SavingsAccountMapper() {}
+  private SavingsAccountMapper() {}
 }

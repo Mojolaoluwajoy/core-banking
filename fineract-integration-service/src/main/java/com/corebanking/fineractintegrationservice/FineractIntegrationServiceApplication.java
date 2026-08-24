@@ -8,8 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients
 public class FineractIntegrationServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(FineractIntegrationServiceApplication.class, args);
-	}
-
+  public static void main(String[] args) {
+    SpringApplication.run(FineractIntegrationServiceApplication.class, args);
+  }
 }

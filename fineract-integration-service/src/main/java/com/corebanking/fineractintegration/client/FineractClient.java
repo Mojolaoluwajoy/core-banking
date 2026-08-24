@@ -29,11 +29,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "fineract-client", url = "${fineract.base-url}")
 public interface FineractClient {
 
+  @PostMapping("/clients")
+  FineractClientResponse createClient(@RequestBody FineractCreateClientRequest request);
 
-    @PostMapping("/clients")
-    FineractClientResponse createClient(@RequestBody FineractCreateClientRequest request);
-
-
-    @GetMapping("/clients/{clientId}")
-    Object getClientById(@PathVariable("clientId") Long clientId);
+  @GetMapping("/clients/{clientId}")
+  Object getClientById(@PathVariable("clientId") Long clientId);
 }

@@ -9,12 +9,12 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FineractRequestInterceptor implements RequestInterceptor {
 
-    private final FineractConfig fineractConfig;
+  private final FineractConfig fineractConfig;
 
-    @Override
-    public void apply(RequestTemplate template) {
-        template.header("Authorization", fineractConfig.getAuthorizationHeader());
-        template.header("Fineract-Platform-TenantId", fineractConfig.getTenantId());
-        template.header("Content-Type", "application/json");
-    }
+  @Override
+  public void apply(RequestTemplate template) {
+    template.header("Authorization", fineractConfig.getAuthorizationHeader());
+    template.header("Fineract-Platform-TenantId", fineractConfig.getTenantId());
+    template.header("Content-Type", "application/json");
+  }
 }

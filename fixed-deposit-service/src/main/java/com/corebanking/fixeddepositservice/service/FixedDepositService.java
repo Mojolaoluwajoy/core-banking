@@ -1,4 +1,3 @@
-
 package com.corebanking.fixeddepositservice.service;
 
 import com.corebanking.fixeddepositservice.dto.CreateFixedDepositRequest;
@@ -10,114 +9,118 @@ import com.corebanking.fixeddepositservice.exception.PrematureWithdrawalExceptio
 import com.corebanking.fixeddepositservice.repository.FixedDepositRepository;
 import com.corebanking.fixeddepositservice.util.FixedDepositMapper;
 import com.corebanking.fixeddepositservice.util.LedgerClient;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class FixedDepositService {
 
-    private final FixedDepositRepository fixedDepositRepository;
-    private final LedgerClient ledgerClient;
+  private final FixedDepositRepository fixedDepositRepository;
+  private final LedgerClient ledgerClient;
 
+  @Transactional
+  public FixedDepositResponse createFixedDeposit(CreateFixedDepositRequest request) {
+    log.info("Creating fixed deposit for client ID: {}", request.getClientId());
 
-    @Transactional
-    public FixedDepositResponse createFixedDeposit(CreateFixedDepositRequest request) {
-        log.info("Creating fixed deposit for client ID: {}", request.getClientId());
+    LocalDate depositDate = LocalDate.now();
+    LocalDate maturityDate = depositDate.plusDays(request.getTenureInDays());
+    BigDecimal maturityAmount =
+        calculateMaturityAmount(
+            request.getPrincipalAmount(), request.getInterestRate(), request.getTenureInDays());
 
-        LocalDate depositDate = LocalDate.now();
-        LocalDate maturityDate = depositDate.plusDays(request.getTenureInDays());
-        BigDecimal maturityAmount = calculateMaturityAmount(
-                request.getPrincipalAmount(),
-                request.getInterestRate(),
-                request.getTenureInDays());
+    FixedDeposit deposit = new FixedDeposit();
+    deposit.setClientId(request.getClientId());
+    deposit.setPrincipalAmount(request.getPrincipalAmount());
+    deposit.setInterestRate(request.getInterestRate());
+    deposit.setTenureInDays(request.getTenureInDays());
+    deposit.setDepositDate(depositDate);
+    deposit.setMaturityDate(maturityDate);
+    deposit.setMaturityAmount(maturityAmount);
+    deposit.setStatus(FixedDepositStatus.ACTIVE);
 
-        FixedDeposit deposit = new FixedDeposit();
-        deposit.setClientId(request.getClientId());
-        deposit.setPrincipalAmount(request.getPrincipalAmount());
-        deposit.setInterestRate(request.getInterestRate());
-        deposit.setTenureInDays(request.getTenureInDays());
-        deposit.setDepositDate(depositDate);
-        deposit.setMaturityDate(maturityDate);
-        deposit.setMaturityAmount(maturityAmount);
-        deposit.setStatus(FixedDepositStatus.ACTIVE);
+    FixedDeposit savedDeposit = fixedDepositRepository.save(deposit);
+    log.info(
+        "Fixed deposit created with ID: {} maturing on: {}", savedDeposit.getId(), maturityDate);
 
-        FixedDeposit savedDeposit = fixedDepositRepository.save(deposit);
-        log.info("Fixed deposit created with ID: {} maturing on: {}", savedDeposit.getId(), maturityDate);
+    ledgerClient.postFixedDepositCreationEntry(
+        request.getPrincipalAmount(),
+        "FD-" + savedDeposit.getId() + "-" + System.currentTimeMillis());
 
+    return FixedDepositMapper.toResponse(savedDeposit);
+  }
 
-        ledgerClient.postFixedDepositCreationEntry(
-                request.getPrincipalAmount(),
-                "FD-" + savedDeposit.getId() + "-" + System.currentTimeMillis());
+  @Transactional
+  public FixedDepositResponse matureDeposit(Long depositId) {
+    log.info("Processing maturity for deposit ID: {}", depositId);
 
-        return FixedDepositMapper.toResponse(savedDeposit);    }
-
-
-    @Transactional
-    public FixedDepositResponse matureDeposit(Long depositId) {
-        log.info("Processing maturity for deposit ID: {}", depositId);
-
-        FixedDeposit deposit = fixedDepositRepository.findById(depositId)
-                .orElseThrow(() -> new FixedDepositNotFoundException(
+    FixedDeposit deposit =
+        fixedDepositRepository
+            .findById(depositId)
+            .orElseThrow(
+                () ->
+                    new FixedDepositNotFoundException(
                         "Fixed deposit not found with ID: " + depositId));
 
-        if (LocalDate.now().isBefore(deposit.getMaturityDate())) {
-            throw new PrematureWithdrawalException(
-                    "Fixed deposit " + depositId + " cannot be matured before " +
-                            deposit.getMaturityDate() + ". Today is " + LocalDate.now());
-        }
+    if (LocalDate.now().isBefore(deposit.getMaturityDate())) {
+      throw new PrematureWithdrawalException(
+          "Fixed deposit "
+              + depositId
+              + " cannot be matured before "
+              + deposit.getMaturityDate()
+              + ". Today is "
+              + LocalDate.now());
+    }
 
-        deposit.setStatus(FixedDepositStatus.MATURED);
-        FixedDeposit maturedDeposit = fixedDepositRepository.save(deposit);
-        log.info("Fixed deposit {} matured successfully", depositId);
+    deposit.setStatus(FixedDepositStatus.MATURED);
+    FixedDeposit maturedDeposit = fixedDepositRepository.save(deposit);
+    log.info("Fixed deposit {} matured successfully", depositId);
 
+    ledgerClient.postFixedDepositMaturityEntry(
+        maturedDeposit.getMaturityAmount(),
+        "FD-MAT-" + depositId + "-" + System.currentTimeMillis());
 
-        ledgerClient.postFixedDepositMaturityEntry(
-                maturedDeposit.getMaturityAmount(),
-                "FD-MAT-" + depositId + "-" + System.currentTimeMillis());
+    return FixedDepositMapper.toResponse(maturedDeposit);
+  }
 
-        return FixedDepositMapper.toResponse(maturedDeposit);  }
+  public FixedDepositResponse getDepositById(Long depositId) {
+    log.info("Fetching fixed deposit with ID: {}", depositId);
 
-
-    public FixedDepositResponse getDepositById(Long depositId) {
-        log.info("Fetching fixed deposit with ID: {}", depositId);
-
-        FixedDeposit deposit = fixedDepositRepository.findById(depositId)
-                .orElseThrow(() -> new FixedDepositNotFoundException(
+    FixedDeposit deposit =
+        fixedDepositRepository
+            .findById(depositId)
+            .orElseThrow(
+                () ->
+                    new FixedDepositNotFoundException(
                         "Fixed deposit not found with ID: " + depositId));
 
-        return FixedDepositMapper.toResponse(deposit);
-    }
+    return FixedDepositMapper.toResponse(deposit);
+  }
 
+  public List<FixedDepositResponse> getDepositsByClientId(Long clientId) {
+    log.info("Fetching fixed deposits for client ID: {}", clientId);
 
-    public List<FixedDepositResponse> getDepositsByClientId(Long clientId) {
-        log.info("Fetching fixed deposits for client ID: {}", clientId);
+    return fixedDepositRepository.findByClientId(clientId).stream()
+        .map(FixedDepositMapper::toResponse)
+        .collect(Collectors.toList());
+  }
 
-        return fixedDepositRepository.findByClientId(clientId)
-                .stream()
-                .map(FixedDepositMapper::toResponse)
-                .collect(Collectors.toList());
-    }
+  private BigDecimal calculateMaturityAmount(
+      BigDecimal principal, BigDecimal annualRate, int tenureInDays) {
 
+    BigDecimal rate = annualRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+    BigDecimal tenure =
+        BigDecimal.valueOf(tenureInDays).divide(BigDecimal.valueOf(365), 10, RoundingMode.HALF_UP);
+    BigDecimal interest = principal.multiply(rate).multiply(tenure);
 
-    private BigDecimal calculateMaturityAmount(
-            BigDecimal principal,
-            BigDecimal annualRate,
-            int tenureInDays) {
-
-        BigDecimal rate = annualRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
-        BigDecimal tenure = BigDecimal.valueOf(tenureInDays)
-                .divide(BigDecimal.valueOf(365), 10, RoundingMode.HALF_UP);
-        BigDecimal interest = principal.multiply(rate).multiply(tenure);
-
-        return principal.add(interest).setScale(2, RoundingMode.HALF_UP);
-    }
+    return principal.add(interest).setScale(2, RoundingMode.HALF_UP);
+  }
 }

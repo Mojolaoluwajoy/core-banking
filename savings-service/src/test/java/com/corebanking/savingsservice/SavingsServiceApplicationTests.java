@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class SavingsServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+  @Test
+  void contextLoads() {}
 }
