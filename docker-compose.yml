@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: core-banking-postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+
+  client-service:
+    build: ./client-service
+    container_name: client-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/client_service_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: postgres
+      FINERACT_BASE_URL: https://apis.mifos.community/fineract-provider/api/v1
+      FINERACT_TENANT_ID: default
+      FINERACT_USERNAME: mifos
+      FINERACT_PASSWORD: password
+    depends_on:
+      - postgres
+
+  savings-service:
+    build: ./savings-service
+    container_name: savings-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/savings_service_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  fixed-deposit-service:
+    build: ./fixed-deposit-service
+    container_name: fixed-deposit-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fixed_deposit_service_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  ledger-service:
+    build: ./ledger-service
+    container_name: ledger-service
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/ledger_service_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: postgres
+    depends_on:
+      - postgres
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - client-service
+      - savings-service
+      - fixed-deposit-service
+      - ledger-service
+
+volumes:
+  postgres-data:
