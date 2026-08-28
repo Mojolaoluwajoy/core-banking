@@ -17,7 +17,7 @@ services:
     build: ./client-service
     container_name: client-service
     ports:
-      - "8081:8081"
+      - "8086:8081"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/client_service_db
       SPRING_DATASOURCE_USERNAME: root
@@ -69,7 +69,7 @@ services:
     build: ./api-gateway
     container_name: api-gateway
     ports:
-      - "8080:8080"
+      - "8087:8080"
     depends_on:
       - client-service
       - savings-service
